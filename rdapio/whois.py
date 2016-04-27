@@ -63,6 +63,8 @@ def whois_registrar(domain, single=''):
         print('No whois server for {}'.format(domain))
         return
 
+    print('Using whois {}'.format(svc))
+
     try:
         sd = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
         sd.connect((svc, 43))
@@ -79,12 +81,15 @@ def whois_registrar(domain, single=''):
     obj = {}
     for line in rep.split('\n'):
         line = line.rstrip('\r\n')
-        if 'Aborting search' in line and not single:
+        if 'single out one' in line and not single:
             return whois_registrar(domain, '=')
         if 'Registrar: ' in line:
             obj['registrar'] = line.split(': ')[1]
         if 'Registrar IANA ID: ' in line:
             obj['registrar_id'] = line.split(': ')[1]
+
+    if not obj.get('registrar') or not obj.get('registrar_id'):
+        print('Whois output badly parsed: %s' % rep)
 
     return obj
 
