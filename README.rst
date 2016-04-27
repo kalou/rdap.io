@@ -31,6 +31,18 @@ better "TPDA" specification. RDAP is coming, and extends the currently
 available protocols enough so we can fully automate and enhance customer experience
 with name configuration.
 
+If you are a domain name operator, you could setup a TPDA entry on your Nameservers:
+
+.. code:: bind
+
+    record._tpda._tcp.ns1.example.com.  IN  URI "http://doc.example.com/zonerecordsetup"
+    email._tpda._tcp.ns1.example.com.   IN  URI "http://doc.example.com/settingup_mx.html"
+    website._tpda._tcp.ns1.example.com. IN  URI "https://api.example.com/tpda/v1"
+
+This would redirect your users to the appropriate documentation, or TPDA service if you
+have one. Note that you need a nameserver supporting the RFC7533 format (from
+draft-faltstrom-uri-08), and there is a bind bug fixed in bind 9.9.6 or 9.10.1
+
 If you want to help, help us add per-registrar documentation here.
 
 .. _TPDA: https://github.com/Gandi/dnsknife/blob/master/docs/extending_registrar_functions.txt
