@@ -10,7 +10,7 @@ app = Flask(__name__, static_folder='doc')
 
 @app.route("/domain/<domain>")
 def domain(domain):
-    return json.dumps(find_best(domain))
+    return json.dumps(find_best(domain.lower()))
 
 @app.route('/doc/<fname>')
 def regdoc(fname):
