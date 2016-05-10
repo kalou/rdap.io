@@ -3,6 +3,7 @@ import re
 import socket
 import urllib
 
+import dnsknife
 import requests
 
 _svc_template = {
@@ -104,7 +105,15 @@ def fake_endpoints(rdap):
         rdap['tpda_endpoints'] = dict((url, svc.format(rdap['registrar_id'])) for
                                        url, svc in _svc_template.items())
 
+def operator_endpoints(domain, rdap):
+    checker = dnsknife.Checker(domain)
+    for svc in ('record', 'email', 'website'):
+        uri = checker.tpda_endpoint(svc)
+        if uri:
+            rdap['tpda_endpoints'][svc] = uri
+
 def find_best(domain):
     obj = rdap_registrar(domain) or whois_registrar(domain) or {}
     fake_endpoints(obj)
+    operator_endpoints(domain, obj)
     return obj
