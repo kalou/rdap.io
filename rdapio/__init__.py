@@ -7,6 +7,9 @@ from whois import find_best
 
 app = Flask(__name__, static_folder='doc')
 
+@app.route("/")
+def slash():
+    return redirect("https://github.com/kalou/rdap.io", 302)
 
 @app.route("/domain/<domain>")
 def domain(domain):
