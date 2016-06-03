@@ -106,7 +106,8 @@ def fake_endpoints(rdap):
                                        url, svc in _svc_template.items())
 
 def operator_endpoints(domain, rdap):
-    checker = dnsknife.Checker(domain)
+    checker = dnsknife.Checker(domain, nameservers=dnsknife.resolver
+                               .system_resolver.nameservers)
     for svc in ('record', 'email', 'website'):
         uri = checker.tpda_endpoint(svc)
         if uri:
