@@ -2,6 +2,8 @@ import pkg_resources
 import re
 import socket
 import urllib
+import random
+import json
 
 import dnsknife
 import requests
@@ -26,8 +28,29 @@ def service(domain, conf):
         except:
             pass
 
+def from_bootstrap(domain):
+    fname = pkg_resources.resource_filename(__name__, 'bootstrap.json')
+
+    def candidates(domain):
+        data = json.loads(open(fname).read())
+        for tld_list, uri_list in data.get('services', []):
+            for tld in tld_list:
+                if domain.endswith('.{}'.format(tld)):
+                    yield tld, uri_list
+
+    def preferred(uri_list):
+        https = [x for x in uri_list if x.startswith('https')]
+        if https:
+            return random.sample(https, 1)[0]
+        return random.sample(uri_list, 1)[0]
+
+    matches = list(candidates(domain))
+    matches.sort(lambda x, y: cmp(len(x[0]), len(y[0])))
+    if matches and matches[-1][1]:
+        return preferred(matches[-1][1]) + '/domain/{}'
+
 def rdap_registrar(domain):
-    url = service(domain, 'rdap.conf')
+    url = from_bootstrap(domain) or service(domain, 'rdap.conf')
     if not url:
         return
 

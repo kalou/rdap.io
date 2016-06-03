@@ -1,0 +1,16 @@
+{
+  "description": "RDAP bootstrap file for Domain Name System registrations",
+  "publication": "2016-03-22T15:40:01Z",
+  "comment": "from https://data.iana.org/rdap/dns.json",
+  "services": [
+    [
+      [
+        "cz"
+      ],
+      [
+        "https://rdap.nic.cz"
+      ]
+    ]
+  ],
+  "version": "1.0"
+}
