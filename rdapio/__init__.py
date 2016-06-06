@@ -1,7 +1,7 @@
 import json
 
 import requests
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, Response
 
 from whois import find_best
 
@@ -13,7 +13,8 @@ def slash():
 
 @app.route("/domain/<domain>")
 def domain(domain):
-    return json.dumps(find_best(domain.lower()))
+    js = json.dumps(find_best(domain.lower()))
+    return Response(js, status=200, mimetype='application/json')
 
 @app.route('/doc/<fname>')
 def regdoc(fname):
