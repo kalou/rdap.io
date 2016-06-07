@@ -5,17 +5,10 @@ import urllib
 import random
 import json
 
+
 import dnsknife
 import requests
 
-_svc_template = {
-    'nameservers': 'http://rdap.io/doc/{}',
-    'record': 'http://rdap.io/doc/{}',
-    'website': 'http://rdap.io/doc/{}',
-    'email': 'http://rdap.io/doc/{}',
-    'dnssec': 'http://rdap.io/doc/{}',
-    'cdscheck': 'http://rdap.io/doc/{}'
-}
 
 def service(domain, conf):
     fname = pkg_resources.resource_filename(__name__, conf)
@@ -27,6 +20,7 @@ def service(domain, conf):
                 return server
         except:
             pass
+
 
 def from_bootstrap(domain):
     fname = pkg_resources.resource_filename(__name__, 'bootstrap.json')
@@ -49,6 +43,7 @@ def from_bootstrap(domain):
     if matches and matches[-1][1]:
         return preferred(matches[-1][1]) + '/domain/{}'
 
+
 def rdap_registrar(domain):
     url = from_bootstrap(domain) or service(domain, 'rdap.conf')
     if not url:
@@ -65,7 +60,7 @@ def rdap_registrar(domain):
     rdap = rdap.json()
 
     def reg_id(entity):
-        #XXX STD ?
+        # XXX STD ?
         ids = [x['identifier'] for x in entity.get('publicIds', []) if
                x.get('type') == 'IANA Registrar ID']
         if len(ids):
@@ -90,7 +85,8 @@ def whois_registrar(domain, single=''):
     print('Using whois {}'.format(svc))
 
     try:
-        sd = socket.socket(socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)
+        sd = socket.socket(socket.AF_INET, socket.SOCK_STREAM,
+                           socket.IPPROTO_TCP)
         sd.connect((svc, 43))
         sd.sendall('{}{}\n\n'.format(single, domain))
     except:
@@ -117,16 +113,49 @@ def whois_registrar(domain, single=''):
 
     return obj
 
-def fake_endpoints(rdap):
+
+def add_endpoint(rdap, service, uri=None):
     if not rdap.get('registrar'):
         rdap['registrar'] = 'unknown'
         rdap['registrar_id'] = 0
 
     rdap['registrar'] = urllib.quote(rdap['registrar'])
 
-    if 'tpda_endpoints' not in rdap:
-        rdap['tpda_endpoints'] = dict((url, svc.format(rdap['registrar_id'])) for
-                                       url, svc in _svc_template.items())
+    if not uri:
+        uri = 'http://rdap.io/doc/{}'.format(rdap['registrar_id'])
+
+    rdap.setdefault('links', []).append({
+        'rel': 'http://rdap.io/tpda/{}'.format(service),
+        'href': uri
+    })
+
+
+def get_endpoint(rdap, service):
+    for lnk in rdap.get('links', []):
+        if lnk.get('rel', '').endswith('/tpda/{}'.format(service)):
+            return lnk
+
+
+def del_endpoint(rdap, service):
+    lnk = get_endpoint(rdap, service)
+    if lnk:
+        rdap['links'].remove(lnk)
+
+
+def has_endpoint(rdap, service):
+    return bool(get_endpoint(rdap, service))
+
+
+def replace_endpoint(rdap, service, uri=None):
+    del_endpoint(rdap, service)
+    add_endpoint(rdap, service, uri)
+
+
+def registrar_endpoints(rdap):
+    for svc in ('dnssec', 'cdscheck', 'nameservers'):
+        if not has_endpoint(rdap, svc):
+            add_endpoint(rdap, svc)
+
 
 def operator_endpoints(domain, rdap):
     checker = dnsknife.Checker(domain, nameservers=dnsknife.resolver
@@ -134,10 +163,13 @@ def operator_endpoints(domain, rdap):
     for svc in ('record', 'email', 'website'):
         uri = checker.tpda_endpoint(svc)
         if uri:
-            rdap['tpda_endpoints'][svc] = uri
+            replace_endpoint(rdap, svc, uri)
+        if not has_endpoint(rdap, svc):
+            add_endpoint(rdap, svc)
+
 
 def find_best(domain):
     obj = rdap_registrar(domain) or whois_registrar(domain) or {}
-    fake_endpoints(obj)
+    registrar_endpoints(obj)
     operator_endpoints(domain, obj)
     return obj
