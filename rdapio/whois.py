@@ -120,12 +120,14 @@ def add_endpoint(rdap, service, uri=None):
         rdap['registrar_id'] = 0
 
     rdap['registrar'] = urllib.quote(rdap['registrar'])
+    relname = 'http://rdap.io/tpda/{}'.format(service)
 
     if not uri:
         uri = 'http://rdap.io/doc/{}'.format(rdap['registrar_id'])
+        relname = 'http://rdap.io/doc/{}'.format(service)
 
     rdap.setdefault('links', []).append({
-        'rel': 'http://rdap.io/tpda/{}'.format(service),
+        'rel': relname,
         'href': uri
     })
 
