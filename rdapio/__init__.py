@@ -1,14 +1,26 @@
+import os
+import pkg_resources
 import json
 
-from flask import Flask, redirect, Response
 
+from flask import Flask, redirect, Response, render_template
+
+
+import registrar
 from whois import find_best
 
-app = Flask(__name__, static_folder='doc')
+
+static = os.path.abspath(pkg_resources.resource_filename(__name__, 'static'))
+app = Flask(__name__, static_url_path='/s', static_folder=static)
 
 
 @app.route("/")
 def slash():
+    return render_template('index.html')
+
+
+@app.route("/about")
+def about():
     return redirect("https://github.com/kalou/rdap.io", 302)
 
 
@@ -18,14 +30,16 @@ def domain(domain):
     return Response(js, status=200, mimetype='application/json')
 
 
-@app.route('/doc/<fname>')
-def regdoc(fname):
-    return app.send_static_file('{}/index.html'.format(fname))
+@app.route('/doc/<regid>')
+@app.route('/doc/<regid>/<svcname>')
+def regdoc(regid, svcname=None):
+    names=['doc/{}/{}.html'.format(regid, svcname),
+           'doc/{}/index.html'.format(regid)]
 
-
-@app.errorhandler(404)
-def notfound(uri):
-    return app.send_static_file('0/index.html')
+    for name in names:
+        if os.path.exists('{}/{}'.format(static, name)):
+            return app.send_static_file(name)
+    return render_template('noreg.html', registrar=registrar.by_id(regid))
 
 
 # Allow everyone to use us from anywhere.

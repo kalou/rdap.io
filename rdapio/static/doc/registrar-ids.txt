@@ -1,3 +1,4 @@
+From https://www.iana.org/assignments/registrar-ids/registrar-ids.txt
                                                                     Registrar IDs
 
    Last Updated

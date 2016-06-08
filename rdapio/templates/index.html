@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+    html {
+        overflow: -moz-scrollbars-vertical;
+        overflow-y: scroll;
+    }
+
+    .rdapio-form {
+        max-width: 720px;
+        margin: 10px auto;
+        padding: 20px;
+        background: #1aa;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 20px;
+        font-family: Georgia, "Times New Roman", Times, serif;
+    }
+
+    input.rdapio {
+        padding: 15px;
+        box-sizing: border-box;
+        height: 38px;
+        font-size: 28px;
+        width: 100%;
+        box-shadow: 0 0 0 1px #3cc;
+        margin-top: 15px;
+        margin-bottom: 15px;
+        border-width: 2px 0 0 0;
+        border-radius: 6px;
+        border-color: transparent;
+        background-color: #fff;
+        -webkit-transition: all .2s;
+        transition: all .2s;
+    }
+
+    button.rdapio {
+        border-radius: 6px;
+        color: #FFF;
+        background: #3c6;
+        font-size: 20px;
+        text-align: center;
+        font-style: normal;
+        width: 100%;
+        padding: 20px;
+        border-color: transparent;
+    }
+
+    button.rdapio:hover {
+        background: #4d7;
+        -webkit-transition: all .2s;
+        transition: all .2s;
+    }
+
+    .ps {
+        font-size: 12px;
+        padding: 15px;
+        text-align: right;
+    }
+
+    </style>
+    <script src="/s/script/fetch.js"></script>
+    <script src="/s/script/es6-promise.js"></script>
+    <script src="/s/script/rdapio.js"></script>
+  </head>
+  <body>
+  <div class="rdapio-form">
+      <form id="config" action="/domain" method=POST>
+      </form>
+      <div class="ps">
+        <a href="javascript:viewsource()">view source</a>
+        <a href="/about">about</a>
+      </div>
+  </div>
+  <script>
+      function viewsource() {
+        window.location = 'view-source:' + window.location;
+      }
+
+      // Query auto/doc urls:
+      // rdapio.lookup('ten.pm', 'record', onAuto, onDoc, onError);
+
+      // Or use rdaplet
+      rdaplet.setup('config')
+                .for_service('record')
+                .say_when('initial', 'Enter a domain:')
+                .add_param("name", "tpda")
+                .add_param("type", "a")
+                .add_param("value", "1.2.3.4");
+  </script>
+  </body>
+</html>
