@@ -160,8 +160,7 @@ def registrar_endpoints(rdap):
 
 
 def operator_endpoints(domain, rdap):
-    checker = dnsknife.Checker(domain, nameservers=dnsknife.resolver
-                               .system_resolver.nameservers)
+    checker = dnsknife.Checker(domain, direct=False)
     for svc in ('record', 'email', 'website'):
         uri = checker.tpda_endpoint(svc)
         if uri:
