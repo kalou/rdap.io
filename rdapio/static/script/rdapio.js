@@ -30,7 +30,7 @@
         },
     },
 
-    self.rdaplet = {
+    self.rdaplet = function() { return {
         form: null,
         form_msg: null,
         form_domain : null,
@@ -158,6 +158,13 @@
             return this;
         },
 
+        add_record: function(name, type, value) {
+            this.add_param("name", name);
+            this.add_param("type", type);
+            this.add_param("value", value);
+            return this;
+        },
+
         say_when: function(step, value) {
             this.steps[step][0] = value;
             // ..bah..
@@ -165,4 +172,4 @@
             return this;
         }
     }
-})(typeof self !== 'undefined' ? self : this);
+}})(typeof self !== 'undefined' ? self : this);

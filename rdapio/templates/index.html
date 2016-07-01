@@ -5,11 +5,17 @@
     html {
         overflow: -moz-scrollbars-vertical;
         overflow-y: scroll;
+        font-family: Georgia, "Times New Roman", Times, serif;
+        margin: 10px;
+        max-width: 720px;
     }
 
-    .rdapio-form {
+    code {
+        padding: 20px;
+    }
+
+    form {
         max-width: 720px;
-        margin: 10px auto;
         padding: 20px;
         background: #1aa;
         border-radius: 8px;
@@ -18,7 +24,7 @@
         font-family: Georgia, "Times New Roman", Times, serif;
     }
 
-    input.rdapio {
+    input {
         padding: 15px;
         box-sizing: border-box;
         height: 38px;
@@ -35,7 +41,7 @@
         transition: all .2s;
     }
 
-    button.rdapio {
+    button {
         border-radius: 6px;
         color: #FFF;
         background: #3c6;
@@ -47,7 +53,7 @@
         border-color: transparent;
     }
 
-    button.rdapio:hover {
+    button:hover {
         background: #4d7;
         -webkit-transition: all .2s;
         transition: all .2s;
@@ -59,35 +65,129 @@
         text-align: right;
     }
 
+    code {
+        max-width: 720px;
+    }
+
     </style>
     <script src="/s/script/fetch.js"></script>
     <script src="/s/script/es6-promise.js"></script>
     <script src="/s/script/rdapio.js"></script>
+    <script src="/s/script/highlight.pack.js"></script>
+    <link class="codestyle" rel="stylesheet" href="/s/styles/default.css">
   </head>
   <body>
-  <div class="rdapio-form">
-      <form id="config" action="/domain" method=POST>
+
+  <h1>Beware, it's real!</h1>
+  <p>If you follow the forms using your own domains, beware that after you
+  accept the changes they'll be applied! Especially when changing nameservers,
+  ensure you don't break an important domain. Use at your own risk.</p>
+
+  <h1>Automatic domain configuration</h1>
+  <p>Here's an example on how to add a "TXT" record on a domain:</p>
+
+  {% set example %}
+  <div>
+      <form id="example0" method=POST>
       </form>
-      <div class="ps">
-        <a href="javascript:viewsource()">view source</a>
-        <a href="/about">about</a>
-      </div>
+      <script>
+          // Use rdaplet, asking to add a TXT record
+          new rdaplet().setup('example0')
+                    .for_service('record') // Select "record" service
+                    .say_when('initial', 'Enter a domain:') // Change the labels
+                    .add_record("tpda", "txt", "hello") // Describe record
+                    .add_param("redirect", "http://rdap.io/?success") // Get the client back
+      </script>
   </div>
+  {% endset %}
+
+  <pre><code>{{ example }}</code></pre>
+
+  <p>Results in the following:</p>
+
+  {{ example | safe }}
+
+  <h1>Another example: setup for an external mail provider</h1>
+  <p>Here's a complete example for a third-party provider setup, for example
+  in a customer documentation website:</p>
+  <p>Note: only mx is supported right now. This is not very convenient,
+  but we'll improve that. See below for an alternative.</p>
+
+  {% set example %}
+  <div>
+      <form id="example1" method=POST>
+      </form>
+      <script>
+          // Use rdaplet, adding MX records
+          new rdaplet().setup('example1')
+                    .for_service('email') // Select "email" service
+                    .say_when('initial', 'Domain to configure:') // Change the labels
+                    .add_param("mx", "10 spool.mail.gandi.net.")
+                    .add_param("mx", "20 fb.mail.gandi.net.");
+      </script>
+  </div>
+  {% endset %}
+
+  <pre><code>{{ example }}</code></pre>
+  {{ example | safe }}
+
+  <h1>A more complicated example: setup for FastMail with SPF and an SRV</h1>
+  <p>Because FastMail is great, here's another example that will actually
+  setup your domain for most of their services:</p>
+  {% set example %}
+  <div>
+      <form id="example2" method=POST>
+      </form>
+      <script>
+          // Use rdaplet, setting up complete MX services
+          new rdaplet().setup('example2')
+                    .for_service('record') // Select "record" service
+                    .say_when('initial', 'Configure for FastMail:') // Change the labels
+                    .add_record("@", "mx", "10 n1-smtp.messagingengine.com.")
+                    .add_record("@", "mx", "20 in2-smtp.messagingengine.com.")
+                    .add_record("@", "txt",
+                        "v=spf1 include:spf.messagingengine.com ?all")
+                    .add_record("_client._smtp", "srv", "1 1 1 @")
+                    .add_record("_submission._tcp",
+                                "srv", "0 1 587 mail.messagingengine.com.")
+                    .add_record("_imaps._tcp",
+                                "srv", "0 1 993 mail.messagingengine.com.")
+                    .add_record("_pop3s._tcp",
+                                "srv", "10 1 995 mail.messagingengine.com.")
+                    .add_record("_carddavs._tcp",
+                                "srv", "0 1 443 carddav.messagingengine.com.")
+                    .add_record("_caldavs._tcp",
+                                "srv", "0 1 443 caldav.messagingengine.com.")
+                    .add_param("redirect", "http://rdap.io/?success") // Get the client back
+                    // Woot.
+      </script>
+  </div>
+  {% endset %}
+
+  <pre><code>{{ example }}</code></pre>
+  {{ example | safe }}
+
+  <h1>Just getting RDAP URLs from the scripts</h1>
+  <p>You also might want to implement your own redirections, and forms. Here's
+  an example of that:</p>
+
+  {% set example %}
+  <div>
+  <form>
+    <button onclick="rdapio.lookup('rdap.io', 'record', alert, alert)">Run rdap</button>
+  </form>
+  </div>
+  {% endset %}
+
+  <pre><code>{{ example }}</code></pre>
+
+  <p>Giving:</p>
+
+  {{ example | safe }}
+
   <script>
-      function viewsource() {
-        window.location = 'view-source:' + window.location;
-      }
-
-      // Query auto/doc urls:
-      // rdapio.lookup('ten.pm', 'record', onAuto, onDoc, onError);
-
-      // Or use rdaplet
-      rdaplet.setup('config')
-                .for_service('record')
-                .say_when('initial', 'Enter a domain:')
-                .add_param("name", "tpda")
-                .add_param("type", "a")
-                .add_param("value", "1.2.3.4");
+        hljs.initHighlightingOnLoad();
   </script>
+
   </body>
 </html>
