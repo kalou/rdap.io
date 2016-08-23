@@ -1,34 +1,108 @@
 (function(self) {
-    self.rdapio = {
-        lookup: function(domain, svc_name, onAuto, onDoc, onError) {
-            var dispatch = function(rdap) {
+    self.rdapio = function() { return {
+        query: '',
+        svc_name: null,
+        debug: true,
+
+        add_param: function(name, value) {
+            if (this.query) {
+                this.query += '&'
+            }
+            this.query += encodeURIComponent(name) + '=' +
+                encodeURIComponent(value);
+            return this;
+        },
+
+        add_record: function(name, type, value) {
+            this.add_param("name", name);
+            this.add_param("type", type);
+            this.add_param("value", value);
+            return this;
+        },
+
+        AutoConfigAvailable: function(url) {
+            // Override me
+            if (this.debug) {
+                alert('conf ' + url)
+            }
+        },
+
+        onAutoConfigAvailable: function(f) {
+            this.AutoConfigAvailable = f;
+            return this;
+        },
+
+        DocAvailable: function(url) {
+            // Override me
+            if (this.debug) {
+                alert('doc ' + url)
+            }
+        },
+
+        onDocAvailable: function(f) {
+            this.DocAvailable = f;
+            return this;
+        },
+
+        Error: function(err) {
+            // Override me
+            if (this.debug) {
+                alert('err ' + err)
+            }
+        },
+
+        onLookupError: function(f) {
+            this.Error = f;
+            return this;
+        },
+
+        onSuccess: function(url) {
+            this.add_param('redirect', url);
+            return this;
+        },
+
+        onError: function(url) {
+            this.add_param('error', url);
+            return this;
+        },
+
+        for_service: function(svc) {
+            this.svc_name = svc;
+            return this;
+        },
+
+        lookup: function(domain) {
+            dispatch = function(rdap) {
                 for (var i = 0; i < rdap.links.length; i++) {
                     svc = rdap.links[i];
                     url = new URL(svc.href);
                     rel = new URL(svc.rel);
 
                     if (rel.hostname != 'rdap.io' ||
-                        !rel.pathname.endsWith(svc_name)) {
+                        !rel.pathname.endsWith(this.svc_name)) {
                         continue;
                     }
 
                     if (rel.pathname.startsWith('/tpda/')) {
-                       return onAuto(url);
+                       return this.AutoConfigAvailable(url + '?domain=' +
+                                        encodeURIComponent(domain) + '&' + this.query);
                     } else if (rel.pathname.startsWith('/doc/')) {
-                       return onDoc(url);
+                       return this.DocAvailable(url);
                     }
                 }
-            }
 
-            return fetch('http://rdap.io/domain/' + domain)
+                this.onError('no automatic config found for domain');
+            }.bind(this);
+
+            fetch('http://rdap.io/domain/' + domain)
                 .then(function ready(req) {
                     return req.json();
                 }, function error(err) {
-                    onError(err);
+                    this.onError(err);
                     return {'links': []}
                 }).then(dispatch);
         },
-    },
+    } },
 
     self.rdaplet = function() { return {
         form: null,
@@ -39,8 +113,7 @@
         trigger: null,
 
         override: true,
-        svc_name: 'record',
-        svc_args: null,
+        rdapio: null,
         steps: {
             // 'step': [message, display doc, display button]
             'initial': ['Enter your domain below:', false, false],
@@ -79,9 +152,7 @@
             domain = this.form_domain.value;
             if (domain) {
                 this.set_step('checking');
-                rdapio.lookup(domain, this.svc_name,
-                    this.set_autodoc.bind(this), this.set_doc.bind(this),
-                    this.set_error.bind(this)); 
+                this.rdapio.lookup(domain);
             }
         },
 
@@ -111,6 +182,11 @@
 
         // "Exported" functions below
         setup: function(fname) {
+            this.rdapio = rdapio()
+                    .onDocAvailable(this.set_doc.bind(this))
+                    .onAutoConfigAvailable(this.set_autodoc.bind(this))
+                    .onError(this.set_error.bind(this));
+
             this.form = document.getElementById(fname);
             this.form.innerHTML = '';
 
@@ -142,12 +218,13 @@
             return this;
         },
 
-        for_service: function(svc) {
-            this.svc_name = svc;
+        for_service: function(name) {
+            this.rdapio.for_service(name);
             return this;
         },
 
         add_param: function(name, value) {
+            // Add to form, not to URI
             input = document.createElement('input');
             input.type = "text";
             input.hidden = true;
@@ -159,16 +236,18 @@
         },
 
         add_record: function(name, type, value) {
-            this.add_param("name", name);
-            this.add_param("type", type);
-            this.add_param("value", value);
+            // UGLY TRICK HERE vv //
+            this.rdapio.add_record.bind(this)(name, type, value);
             return this;
         },
 
         say_when: function(step, value) {
             this.steps[step][0] = value;
-            // ..bah..
-            this.set_step('initial');
+            return this;
+        },
+
+        onSuccess: function(url) {
+            this.add_param('redirect', url)
             return this;
         }
     }

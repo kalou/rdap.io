@@ -96,7 +96,7 @@
                     .for_service('record') // Select "record" service
                     .say_when('initial', 'Enter a domain:') // Change the labels
                     .add_record("tpda", "txt", "hello") // Describe record
-                    .add_param("redirect", "http://rdap.io/?success") // Get the client back
+                    .onSuccess("http://rdap.io/?success") // Get the client back
       </script>
   </div>
   {% endset %}
@@ -158,7 +158,7 @@
                                 "srv", "0 1 443 carddav.messagingengine.com.")
                     .add_record("_caldavs._tcp",
                                 "srv", "0 1 443 caldav.messagingengine.com.")
-                    .add_param("redirect", "http://rdap.io/?success") // Get the client back
+                    .onSuccess("http://rdap.io/?success") // Get the client back
                     // Woot.
       </script>
   </div>
@@ -172,10 +172,20 @@
   an example of that:</p>
 
   {% set example %}
+  <script>
+    function Show(msg) {
+        alert(msg);
+    }
+  </script>
+
   <div>
-  <form>
-    <button onclick="rdapio.lookup('rdap.io', 'record', alert, alert)">Run rdap</button>
-  </form>
+  <button onclick="new rdapio().for_service('record')
+                         .add_record('rdap', 'txt', 'hello')
+                         .onAutoConfigAvailable(Show)
+                         .onDocAvailable(Show)
+                         .onLookupError(Show)
+                         .onSuccess('http://callback.my.domain/')
+                         .lookup('rdap.tech')">Run rdap</button>
   </div>
   {% endset %}
 
