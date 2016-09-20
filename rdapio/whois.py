@@ -88,7 +88,7 @@ def whois_registrar(domain, single=''):
         sd = socket.socket(socket.AF_INET, socket.SOCK_STREAM,
                            socket.IPPROTO_TCP)
         sd.connect((svc, 43))
-        sd.sendall('{}{}\n\n'.format(single, domain))
+        sd.sendall('{}{}\r\n'.format(single, domain))
     except:
         print('Unable to connect to {}'.format(svc))
 
