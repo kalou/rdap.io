@@ -5,8 +5,16 @@
     html {
         overflow: -moz-scrollbars-vertical;
         overflow-y: scroll;
-        font-family: Georgia, "Times New Roman", Times, serif;
+        font-family: sans-serif;
         margin: 10px;
+        max-width: 720px;
+        width: auto;
+    }
+
+    .main {
+        position: absolute;
+        left: 20%;
+        width: auto;
         max-width: 720px;
     }
 
@@ -78,10 +86,46 @@
   </head>
   <body>
 
+  <div class=main>
+
   <h1>Beware, it's real!</h1>
   <p>If you follow the forms using your own domains, beware that after you
   accept the changes they'll be applied! Especially when changing nameservers,
   ensure you don't break an important domain. Use at your own risk.</p>
+
+  <h1>What is this about ?</h1>
+	<p>A lot of service providers offer end users the ability to setup
+	website, email, or application hosting requiring no special
+	technical knowledge. As domain names have become a commodity for
+	end users, it seems natural to use them to host those services
+	in a personalized way.</p>
+
+	<p>However, there is currently no easy access to domain name configuration
+	from a service provider point of view, and most of them willing to provide
+	domain name personalization have to guide their end users through "per-registrar"
+	and per-zone-operator documentation, implement per-registrar specific APIs,
+	or become registrar resellers to achieve this.</p>
+
+	<p>We aim at closing this gap and provide service providers with methods
+	allowing end to end configuration from application to domain name
+	zone setup.</p>
+
+	<p><a href="https://github.com/Gandi/dnsknife/blob/master/docs/extending_registrar_functions.txt">
+	Read the full draft here</a></p>
+
+  <h1>What's here ?</h1>
+  <p>We're also providing an experimental javascript library - that implements parts of the above
+  draft, allowing a service provider to host an "automatic domain configuration" form
+  on their website in a very easy way.</p>
+
+  <p>Registrar detection is automatic - for registrars implementing this (as of today, only Gandi)
+  the user experience is complete. For the other ones, we've added registrar-specific documentation
+  to begin with.</p>
+
+  <p>Feel free to contribute <a href="https://github.com/kalou/rdap.io">here</a>.</p>
+
+  <p>If you are a registrar and want to implement this, we'd be delighted. Contact us
+  at yay (at) rdap dot io.</p>
 
   <h1>Automatic domain configuration</h1>
   <p>Here's an example on how to add a "TXT" record on a domain:</p>
@@ -199,5 +243,6 @@
         hljs.initHighlightingOnLoad();
   </script>
 
+  </div>
   </body>
 </html>
