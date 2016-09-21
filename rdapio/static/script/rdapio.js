@@ -94,7 +94,7 @@
                 this.onError('no automatic config found for domain');
             }.bind(this);
 
-            fetch('http://rdap.io/domain/' + domain)
+            fetch('https://rdap.io/domain/' + domain)
                 .then(function ready(req) {
                     return req.json();
                 }, function error(err) {
