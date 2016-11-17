@@ -88,12 +88,12 @@
 
   <div class=main>
 
-  <h1>Beware, it's real!</h1>
+  <h1 id="warning">Beware, it's real!</h1>
   <p>If you follow the forms using your own domains, beware that after you
   accept the changes they'll be applied! Especially when changing nameservers,
   ensure you don't break an important domain. Use at your own risk.</p>
 
-  <h1>What is this about ?</h1>
+  <h1 id="about">What is this about ?</h1>
 	<p>A lot of service providers offer end users the ability to setup
 	website, email, or application hosting requiring no special
 	technical knowledge. As domain names have become a commodity for
@@ -113,7 +113,7 @@
 	<p><a href="https://github.com/Gandi/dnsknife/blob/master/docs/extending_registrar_functions.txt">
 	Read the full draft here</a></p>
 
-  <h1>What's here ?</h1>
+  <h1 id="contents">What's here ?</h1>
   <p>We're also providing an experimental javascript library - that implements parts of the above
   draft, allowing a service provider to host an "automatic domain configuration" form
   on their website in a very easy way.</p>
@@ -127,7 +127,7 @@
   <p>If you are a registrar and want to implement this, we'd be delighted. Contact us
   at yay (at) rdap dot io.</p>
 
-  <h1>Automatic domain configuration</h1>
+  <h1 id="example0">Automatic domain configuration</h1>
   <p>Here's an example on how to add a "TXT" record on a domain:</p>
 
   {% set example %}
@@ -151,7 +151,7 @@
 
   {{ example | safe }}
 
-  <h1>Another example: setup for an external mail provider</h1>
+  <h1 id="example1">Another example: setup for an external mail provider</h1>
   <p>Here's a complete example for a third-party provider setup, for example
   in a customer documentation website:</p>
   <p>Note: only mx is supported right now. This is not very convenient,
@@ -175,7 +175,7 @@
   <pre><code>{{ example }}</code></pre>
   {{ example | safe }}
 
-  <h1>A more complicated example: setup for FastMail with SPF and an SRV</h1>
+  <h1 id="fastmail">A more complicated example: setup for FastMail with SPF and an SRV</h1>
   <p>Because FastMail is great, here's another example that will actually
   setup your domain for most of their services:</p>
   {% set example %}
@@ -187,7 +187,7 @@
           new rdaplet().setup('example2')
                     .for_service('record') // Select "record" service
                     .say_when('initial', 'Configure for FastMail:') // Change the labels
-                    .add_record("@", "mx", "10 n1-smtp.messagingengine.com.")
+                    .add_record("@", "mx", "10 in1-smtp.messagingengine.com.")
                     .add_record("@", "mx", "20 in2-smtp.messagingengine.com.")
                     .add_record("@", "txt",
                         "v=spf1 include:spf.messagingengine.com ?all")
@@ -211,7 +211,7 @@
   <pre><code>{{ example }}</code></pre>
   {{ example | safe }}
 
-  <h1>Just getting RDAP URLs from the scripts</h1>
+  <h1 id="script">Just getting RDAP URLs from the scripts</h1>
   <p>You also might want to implement your own redirections, and forms. Here's
   an example of that:</p>
 
