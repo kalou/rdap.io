@@ -132,11 +132,11 @@
 
   {% set example %}
   <div>
-      <form id="example0" method=POST>
+      <form id="form_example0" method=POST>
       </form>
       <script>
           // Use rdaplet, asking to add a TXT record
-          new rdaplet().setup('example0')
+          new rdaplet().setup('form_example0')
                     .for_service('record') // Select "record" service
                     .say_when('initial', 'Enter a domain:') // Change the labels
                     .add_record("tpda", "txt", "hello") // Describe record
@@ -159,11 +159,11 @@
 
   {% set example %}
   <div>
-      <form id="example1" method=POST>
+      <form id="form_example1" method=POST>
       </form>
       <script>
           // Use rdaplet, adding MX records
-          new rdaplet().setup('example1')
+          new rdaplet().setup('form_example1')
                     .for_service('email') // Select "email" service
                     .say_when('initial', 'Domain to configure:') // Change the labels
                     .add_param("mx", "10 spool.mail.gandi.net.")
@@ -180,11 +180,11 @@
   setup your domain for most of their services:</p>
   {% set example %}
   <div>
-      <form id="example2" method=POST>
+      <form id="form_example2" method=POST>
       </form>
       <script>
           // Use rdaplet, setting up complete MX services
-          new rdaplet().setup('example2')
+          new rdaplet().setup('form_example2')
                     .for_service('record') // Select "record" service
                     .say_when('initial', 'Configure for FastMail:') // Change the labels
                     .add_record("@", "mx", "10 in1-smtp.messagingengine.com.")
